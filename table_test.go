@@ -1,9 +1,13 @@
-package table
+// Copyright 2017 modood. All rights reserved.
+// license that can be found in the LICENSE file.
+
+package table_test
 
 import (
 	"testing"
 	"time"
 
+	. "github.com/modood/table"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
