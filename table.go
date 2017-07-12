@@ -70,7 +70,11 @@ func table(coln []string, colw []int, rows [][]string) (table string) {
 	for _, r := range rows {
 		row := []rune{'│'}
 		for i, v := range colw {
-			row = append(row, []rune(" "+r[i]+repeat(v-len(r[i]), ' ')+" │")...)
+			// handle non-ascii character
+			lb := len(r[i])
+			lr := len([]rune(r[i]))
+
+			row = append(row, []rune(" "+r[i]+repeat(v-lb+(lb-lr)/2, ' ')+" │")...)
 		}
 		body = append(body, row)
 	}

@@ -63,6 +63,29 @@ func TestTable(t *testing.T) {
 			So("\n"+content, ShouldEqual, expected)
 		})
 
+		Convey("Field: string(Chinese)", func() {
+			type Poet struct {
+				Name    string
+				Dynasty string
+				Live    string
+			}
+
+			s := []Poet{
+				{"李白", "唐朝", "701年-762年"},
+				{"李清照", "宋朝", "1084年-1155年"},
+			}
+
+			content := Table(s)
+			expected := `
+┌───────────┬─────────┬─────────────────┐
+│ Name      │ Dynasty │ Live            │
+├───────────┼─────────┼─────────────────┤
+│ 李白      │ 唐朝    │ 701年-762年     │
+│ 李清照    │ 宋朝    │ 1084年-1155年   │
+└───────────┴─────────┴─────────────────┘`
+			So("\n"+content, ShouldEqual, expected)
+		})
+
 		Convey("Field: string, int, bool, time.Time", func() {
 			type User struct {
 				ID      string
