@@ -1,3 +1,7 @@
+// Copyright 2017 modood. All rights reserved.
+// license that can be found in the LICENSE file.
+
+// Package table produces a string that represents slice of structs data in a text table
 package table
 
 import (
@@ -5,10 +9,12 @@ import (
 	"reflect"
 )
 
+// Output formats slice of structs data and writes to standard output.
 func Output(slice interface{}) {
 	fmt.Println(Table(slice))
 }
 
+// Table formats slice of structs data and returns the resulting string.
 func Table(slice interface{}) string {
 	var coln []string   // name of columns
 	var colw []int      // width of columns
