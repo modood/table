@@ -9,17 +9,54 @@ import (
 	"reflect"
 )
 
-// Output formats slice of structs data and writes to standard output.
+type bd struct {
+	H  rune // BOX DRAWINGS HORIZONTAL
+	V  rune // BOX DRAWINGS VERTICAL
+	VH rune // BOX DRAWINGS VERTICAL AND HORIZONTAL
+	HU rune // BOX DRAWINGS HORIZONTAL AND UP
+	HD rune // BOX DRAWINGS HORIZONTAL AND DOWN
+	VL rune // BOX DRAWINGS VERTICAL AND LEFT
+	VR rune // BOX DRAWINGS VERTICAL AND RIGHT
+	DL rune // BOX DRAWINGS DOWN AND LEFT
+	DR rune // BOX DRAWINGS DOWN AND RIGHT
+	UL rune // BOX DRAWINGS UP AND LEFT
+	UR rune // BOX DRAWINGS UP AND RIGHT
+}
+
+var m = map[string]bd{
+	"ascii":       bd{'-', '|', '+', '+', '+', '+', '+', '+', '+', '+', '+'},
+	"box-drawing": bd{'─', '│', '┼', '┴', '┬', '┤', '├', '┐', '┌', '┘', '└'},
+}
+
+// Output formats slice of structs data and writes to standard output.(Using box drawing characters)
 func Output(slice interface{}) {
 	fmt.Println(Table(slice))
 }
 
-// Table formats slice of structs data and returns the resulting string.
-func Table(slice interface{}) string {
-	var coln []string   // name of columns
-	var colw []int      // width of columns
-	var rows [][]string // rows of content
+// OutputA formats slice of structs data and writes to standard output.(Using standard ascii characters)
+func OutputA(slice interface{}) {
+	fmt.Println(AsciiTable(slice))
+}
 
+// Table formats slice of structs data and returns the resulting string.(Using box drawing characters)
+func Table(slice interface{}) string {
+	coln, colw, rows := parse(slice)
+	table := table(coln, colw, rows, m["box-drawing"])
+	return table
+}
+
+// Table formats slice of structs data and returns the resulting string.(Using standard ascii characters)
+func AsciiTable(slice interface{}) string {
+	coln, colw, rows := parse(slice)
+	table := table(coln, colw, rows, m["ascii"])
+	return table
+}
+
+func parse(slice interface{}) (
+	coln []string, // name of columns
+	colw []int, // width of columns
+	rows [][]string, // rows of content
+) {
 	for i, u := range sliceconv(slice) {
 		v := reflect.ValueOf(u)
 		t := reflect.TypeOf(u)
@@ -49,32 +86,31 @@ func Table(slice interface{}) string {
 		}
 		rows = append(rows, row)
 	}
-	table := table(coln, colw, rows)
-	return table
+	return coln, colw, rows
 }
 
-func table(coln []string, colw []int, rows [][]string) (table string) {
-	head := [][]rune{[]rune{'┌'}, []rune{'│'}, []rune{'├'}}
-	bttm := []rune{'└'}
+func table(coln []string, colw []int, rows [][]string, b bd) (table string) {
+	head := [][]rune{[]rune{b.DR}, []rune{b.V}, []rune{b.VR}}
+	bttm := []rune{b.UR}
 	for i, v := range colw {
-		head[0] = append(head[0], []rune(repeat(v+2, '─')+"┬")...)
-		head[1] = append(head[1], []rune(" "+coln[i]+repeat(v-len(coln[i]), ' ')+" │")...)
-		head[2] = append(head[2], []rune(repeat(v+2, '─')+"┼")...)
-		bttm = append(bttm, []rune(repeat(v+2, '─')+"┴")...)
+		head[0] = append(head[0], []rune(repeat(v+2, b.H)+string(b.HD))...)
+		head[1] = append(head[1], []rune(" "+coln[i]+repeat(v-len(coln[i])+1, ' ')+string(b.V))...)
+		head[2] = append(head[2], []rune(repeat(v+2, b.H)+string(b.VH))...)
+		bttm = append(bttm, []rune(repeat(v+2, b.H)+string(b.HU))...)
 	}
-	head[0][len(head[0])-1] = '┐'
-	head[2][len(head[2])-1] = '┤'
-	bttm[len(bttm)-1] = '┘'
+	head[0][len(head[0])-1] = b.DL
+	head[2][len(head[2])-1] = b.VL
+	bttm[len(bttm)-1] = b.UL
 
 	var body [][]rune
 	for _, r := range rows {
-		row := []rune{'│'}
+		row := []rune{b.V}
 		for i, v := range colw {
 			// handle non-ascii character
 			lb := len(r[i])
 			lr := len([]rune(r[i]))
 
-			row = append(row, []rune(" "+r[i]+repeat(v-lb+(lb-lr)/2, ' ')+" │")...)
+			row = append(row, []rune(" "+r[i]+repeat(v-lb+(lb-lr)/2+1, ' ')+string(b.V))...)
 		}
 		body = append(body, row)
 	}

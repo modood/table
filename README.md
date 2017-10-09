@@ -46,9 +46,7 @@ func main() {
 		{"Lannister", "lion", "Hear Me Roar"},
 	}
 
-	t := table.Table(s)
-
-	fmt.Println(t)
+	table.Output(s)
 }
 ```
 
@@ -68,11 +66,45 @@ Document
 
 -   `func Output(slice interface{})`
 
-    formats slice of structs data and writes to standard output.
+    formats slice of structs data and writes to standard output.(Using box drawing characters)
+
+-   `func OutputA(slice interface{})`
+
+    formats slice of structs data and writes to standard output.(Using standard ascii characters)
 
 -   `func Table(slice interface{}) string`
 
-    formats slice of structs data and returns the resulting string.
+    formats slice of structs data and returns the resulting string.(Using box drawing characters)
+
+-   `func AsciiTable(slice interface{}) string`
+
+    formats slice of structs data and returns the resulting string.(Using standard ascii characters)
+
+-   compare [box drawing characters](http://unicode.org/charts/PDF/U2500.pdf) with [standard ascii characters](https://ascii.cl/)
+
+    box drawing:
+    ```
+    ┌───────────┬──────────┬──────────────────┐
+    │ Name      │ Sigil    │ Motto            │
+    ├───────────┼──────────┼──────────────────┤
+    │ Stark     │ direwolf │ Winter is coming │
+    │ Targaryen │ dragon   │ Fire and Blood   │
+    │ Lannister │ lion     │ Hear Me Roar     │
+    └───────────┴──────────┴──────────────────┘
+    ```
+
+    standard ascii:
+
+    ```
+    +-----------+----------+------------------+
+    | Name      | Sigil    | Motto            |
+    +-----------+----------+------------------+
+    | Stark     | direwolf | Winter is coming |
+    | Targaryen | dragon   | Fire and Blood   |
+    | Lannister | lion     | Hear Me Roar     |
+    +-----------+----------+------------------+
+    ```
+
 
 Contributing
 ------------
