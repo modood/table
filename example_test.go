@@ -4,8 +4,6 @@
 package table_test
 
 import (
-	"fmt"
-
 	"github.com/modood/table"
 )
 
@@ -16,13 +14,16 @@ type House struct {
 }
 
 func Example() {
-	s := []House{
+	hs := []House{
 		{"Stark", "direwolf", "Winter is coming"},
 		{"Targaryen", "dragon", "Fire and Blood"},
 		{"Lannister", "lion", "Hear Me Roar"},
 	}
 
-	t := table.Table(s)
+	// Output to stdout
+	table.Output(hs)
 
-	fmt.Println(t)
+	// Or just return table string and then do something
+	s := table.Table(hs)
+	_ = s
 }

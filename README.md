@@ -28,8 +28,6 @@ Quick start
 package main
 
 import (
-	"fmt"
-
 	"github.com/modood/table"
 )
 
@@ -40,13 +38,18 @@ type House struct {
 }
 
 func main() {
-	s := []House{
+	hs := []House{
 		{"Stark", "direwolf", "Winter is coming"},
 		{"Targaryen", "dragon", "Fire and Blood"},
 		{"Lannister", "lion", "Hear Me Roar"},
 	}
 
-	table.Output(s)
+	// Output to stdout
+	table.Output(hs)
+
+	// Or just return table string and then do something
+	s := table.Table(hs)
+	_ = s
 }
 ```
 
