@@ -107,10 +107,9 @@ func table(coln []string, colw []int, rows [][]string, b bd) (table string) {
 		row := []rune{b.V}
 		for i, v := range colw {
 			// handle non-ascii character
-			lb := len(r[i])
-			lr := len([]rune(r[i]))
+			l := length([]rune(r[i]))
 
-			row = append(row, []rune(" "+r[i]+repeat(v-lb+(lb-lr)/2+1, ' ')+string(b.V))...)
+			row = append(row, []rune(" "+r[i]+repeat(v-l+1, ' ')+string(b.V))...)
 		}
 		body = append(body, row)
 	}
@@ -145,4 +144,37 @@ func repeat(time int, char rune) string {
 		s[i] = char
 	}
 	return string(s)
+}
+
+func length(r []rune) int {
+	// CJK(Chinese, Japanese, Korean)
+	type cjk struct {
+		from rune
+		to   rune
+	}
+
+	// References:
+	// -   [Unicode Table](http://www.tamasoft.co.jp/en/general-info/unicode.html)
+	// -   [汉字 Unicode 编码范围](http://www.qqxiuzi.cn/zh/hanzi-unicode-bianma.php)
+
+	var a = []cjk{
+		{0x2E80, 0x9FD0},   // Chinese, Hiragana, Katakana, ...
+		{0xAC00, 0xD7A3},   // Hangul
+		{0xF900, 0xFACE},   // Kanji
+		{0xFE00, 0xFE6C},   // Fullwidth
+		{0xFF00, 0xFF60},   // Fullwidth again
+		{0x20000, 0x2FA1D}, // Extension
+		// More? PRs are aways welcome here.
+	}
+	length := len(r)
+l:
+	for _, v := range r {
+		for _, c := range a {
+			if v >= c.from && v <= c.to {
+				length++
+				continue l
+			}
+		}
+	}
+	return length
 }

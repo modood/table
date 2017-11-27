@@ -55,6 +55,38 @@ func TestTable(t *testing.T) {
 			}, ShouldPanicWith, "Table: items of slice should be on struct value")
 		})
 
+		Convey("special characters should work correctly", func() {
+			type S struct {
+				Celsius string
+			}
+
+			s := []S{{"39.5℃"}, {"37.34℃"}}
+
+			var tb = []struct {
+				content  string
+				expected string
+			}{
+				{Table(s), `
+┌──────────┐
+│ Celsius  │
+├──────────┤
+│ 39.5℃    │
+│ 37.34℃   │
+└──────────┘`},
+				{AsciiTable(s), `
++----------+
+| Celsius  |
++----------+
+| 39.5℃    |
+| 37.34℃   |
++----------+`},
+			}
+
+			for _, tt := range tb {
+				So("\n"+tt.content, ShouldEqual, tt.expected)
+			}
+		})
+
 		Convey("unexported field should be ignored", func() {
 			type Field struct {
 				Exported   float32
