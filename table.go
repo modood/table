@@ -5,6 +5,7 @@
 package table
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 )
@@ -40,14 +41,20 @@ func OutputA(slice interface{}) {
 
 // Table formats slice of structs data and returns the resulting string.(Using box drawing characters)
 func Table(slice interface{}) string {
-	coln, colw, rows := parse(slice)
+	coln, colw, rows, err := parse(slice)
+	if err != nil {
+		return err.Error()
+	}
 	table := table(coln, colw, rows, m["box-drawing"])
 	return table
 }
 
-// Table formats slice of structs data and returns the resulting string.(Using standard ascii characters)
+// AsciiTable formats slice of structs data and returns the resulting string.(Using standard ascii characters)
 func AsciiTable(slice interface{}) string {
-	coln, colw, rows := parse(slice)
+	coln, colw, rows, err := parse(slice)
+	if err != nil {
+		return err.Error()
+	}
 	table := table(coln, colw, rows, m["ascii"])
 	return table
 }
@@ -56,12 +63,23 @@ func parse(slice interface{}) (
 	coln []string, // name of columns
 	colw []int, // width of columns
 	rows [][]string, // rows of content
+	err error,
 ) {
-	for i, u := range sliceconv(slice) {
+
+	s, err := sliceconv(slice)
+	if err != nil {
+		return
+	}
+	for i, u := range s {
 		v := reflect.ValueOf(u)
 		t := reflect.TypeOf(u)
+		if v.Kind() == reflect.Ptr {
+			v = v.Elem()
+			t = t.Elem()
+		}
 		if v.Kind() != reflect.Struct {
-			panic("Table: items of slice should be on struct value")
+			err = errors.New("warning: table: items of slice should be on struct value")
+			return
 		}
 		var row []string
 
@@ -86,7 +104,7 @@ func parse(slice interface{}) (
 		}
 		rows = append(rows, row)
 	}
-	return coln, colw, rows
+	return coln, colw, rows, nil
 }
 
 func table(coln []string, colw []int, rows [][]string, b bd) (table string) {
@@ -124,10 +142,10 @@ func table(coln []string, colw []int, rows [][]string, b bd) (table string) {
 	return table
 }
 
-func sliceconv(slice interface{}) []interface{} {
+func sliceconv(slice interface{}) ([]interface{}, error) {
 	v := reflect.ValueOf(slice)
 	if v.Kind() != reflect.Slice {
-		panic("sliceconv: param \"slice\" should be on slice value")
+		return nil, errors.New("warning: sliceconv: param \"slice\" should be on slice value")
 	}
 
 	l := v.Len()
@@ -135,7 +153,7 @@ func sliceconv(slice interface{}) []interface{} {
 	for i := 0; i < l; i++ {
 		r[i] = v.Index(i).Interface()
 	}
-	return r
+	return r, nil
 }
 
 func repeat(time int, char rune) string {

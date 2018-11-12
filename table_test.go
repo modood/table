@@ -33,26 +33,51 @@ func TestOutput(t *testing.T) {
 
 func TestTable(t *testing.T) {
 	Convey("Get table content", t, func() {
-		Convey("non-slice, should panic", func() {
-			So(func() {
-				Table(nil)
-			}, ShouldPanicWith, "sliceconv: param \"slice\" should be on slice value")
+		Convey("non-slice, should warning", func() {
+			So(Table(nil), ShouldEqual, "warning: sliceconv: param \"slice\" should be on slice value")
 
-			So(func() {
-				AsciiTable(nil)
-			}, ShouldPanicWith, "sliceconv: param \"slice\" should be on slice value")
+			So(AsciiTable(nil), ShouldEqual, "warning: sliceconv: param \"slice\" should be on slice value")
 		})
 
-		Convey("slice of int, should panic", func() {
+		Convey("slice of int, should warning", func() {
 			s := []int{1, 2, 3}
 
-			So(func() {
-				Table(s)
-			}, ShouldPanicWith, "Table: items of slice should be on struct value")
+			So(Table(s), ShouldEqual, "warning: table: items of slice should be on struct value")
 
-			So(func() {
-				AsciiTable(s)
-			}, ShouldPanicWith, "Table: items of slice should be on struct value")
+			So(AsciiTable(s), ShouldEqual, "warning: table: items of slice should be on struct value")
+		})
+
+		Convey("slice of struct pointers, should work correctly", func() {
+
+			type S struct {
+				Celsius string
+			}
+
+			s := []*S{{"39.5℃"}, {"37.34℃"}}
+
+			var tb = []struct {
+				content  string
+				expected string
+			}{
+				{Table(s), `
+┌──────────┐
+│ Celsius  │
+├──────────┤
+│ 39.5℃    │
+│ 37.34℃   │
+└──────────┘`},
+				{AsciiTable(s), `
++----------+
+| Celsius  |
++----------+
+| 39.5℃    |
+| 37.34℃   |
++----------+`},
+			}
+
+			for _, tt := range tb {
+				So("\n"+tt.content, ShouldEqual, tt.expected)
+			}
 		})
 
 		Convey("special characters should work correctly", func() {
