@@ -13,6 +13,7 @@ Produces a string that represents slice of structs data in a text table, inspire
 -   Cell content aligned.
 -   Column width self-adaptation
 -   Support type of struct field: int, float, string, bool, slice, struct, map, time.Time and everything.
+-   Support custom table header by declaring optional tag: `table`.(Thanks @skyfireitdiy)
 
 Installation
 ------------
@@ -32,7 +33,7 @@ import (
 )
 
 type House struct {
-	Name  string
+	Name  string `table:"Name"`
 	Sigil string
 	Motto string
 }
