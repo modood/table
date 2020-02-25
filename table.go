@@ -25,8 +25,8 @@ type bd struct {
 }
 
 var m = map[string]bd{
-	"ascii":       bd{'-', '|', '+', '+', '+', '+', '+', '+', '+', '+', '+'},
-	"box-drawing": bd{'─', '│', '┼', '┴', '┬', '┤', '├', '┐', '┌', '┘', '└'},
+	"ascii":       {'-', '|', '+', '+', '+', '+', '+', '+', '+', '+', '+'},
+	"box-drawing": {'─', '│', '┼', '┴', '┬', '┤', '├', '┐', '┌', '┘', '└'},
 }
 
 // Output formats slice of structs data and writes to standard output.(Using box drawing characters)
@@ -90,11 +90,15 @@ func parse(slice interface{}) (
 				continue
 			}
 			cn := t.Field(n).Name
+			ct := t.Field(n).Tag.Get("table")
+			if ct == "" {
+				ct = cn
+			}
 			cv := fmt.Sprintf("%+v", v.FieldByName(cn).Interface())
 
 			if i == 0 {
-				coln = append(coln, cn)
-				colw = append(colw, len(cn))
+				coln = append(coln, ct)
+				colw = append(colw, len(ct))
 			}
 			if colw[n-m] < len(cv) {
 				colw[n-m] = len(cv)
@@ -108,11 +112,14 @@ func parse(slice interface{}) (
 }
 
 func table(coln []string, colw []int, rows [][]string, b bd) (table string) {
-	head := [][]rune{[]rune{b.DR}, []rune{b.V}, []rune{b.VR}}
+	if len(rows) == 0 {
+		return ""
+	}
+	head := [][]rune{{b.DR}, {b.V}, {b.VR}}
 	bttm := []rune{b.UR}
 	for i, v := range colw {
 		head[0] = append(head[0], []rune(repeat(v+2, b.H)+string(b.HD))...)
-		head[1] = append(head[1], []rune(" "+coln[i]+repeat(v-len(coln[i])+1, ' ')+string(b.V))...)
+		head[1] = append(head[1], []rune(" "+coln[i]+repeat(v-StringLength([]rune(coln[i]))+1, ' ')+string(b.V))...)
 		head[2] = append(head[2], []rune(repeat(v+2, b.H)+string(b.VH))...)
 		bttm = append(bttm, []rune(repeat(v+2, b.H)+string(b.HU))...)
 	}
@@ -125,7 +132,7 @@ func table(coln []string, colw []int, rows [][]string, b bd) (table string) {
 		row := []rune{b.V}
 		for i, v := range colw {
 			// handle non-ascii character
-			l := length([]rune(r[i]))
+			l := StringLength([]rune(r[i]))
 
 			row = append(row, []rune(" "+r[i]+repeat(v-l+1, ' ')+string(b.V))...)
 		}
@@ -164,7 +171,8 @@ func repeat(time int, char rune) string {
 	return string(s)
 }
 
-func length(r []rune) int {
+// StringLength string display length
+func StringLength(r []rune) int {
 	// CJK(Chinese, Japanese, Korean)
 	type cjk struct {
 		from rune
