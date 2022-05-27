@@ -33,6 +33,7 @@ import (
 )
 
 type House struct {
+	Index int    `table:"-"`
 	Name  string `table:"Name"`
 	Sigil string
 	Motto string
@@ -40,9 +41,9 @@ type House struct {
 
 func main() {
 	hs := []House{
-		{"Stark", "direwolf", "Winter is coming"},
-		{"Targaryen", "dragon", "Fire and Blood"},
-		{"Lannister", "lion", "Hear Me Roar"},
+		{0, "Stark", "direwolf", "Winter is coming"},
+		{1, "Targaryen", "dragon", "Fire and Blood"},
+		{2, "Lannister", "lion", "Hear Me Roar"},
 	}
 
 	// Output to stdout
