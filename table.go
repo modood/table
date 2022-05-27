@@ -93,9 +93,6 @@ func parse(slice interface{}) (
 			ct := t.Field(n).Tag.Get("table")
 			if ct == "" {
 				ct = cn
-			} else if ct == "-" {
-				m++
-				continue
 			}
 			cv := fmt.Sprintf("%+v", v.FieldByName(cn).Interface())
 
